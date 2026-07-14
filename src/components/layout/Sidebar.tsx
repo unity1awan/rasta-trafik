@@ -155,7 +155,11 @@ export function Sidebar({ hasLocation, onNewChat }: Props) {
         {/* Profil / Avatar */}
         <div className="relative group mt-1">
           <button
-            onClick={signOut}
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              console.log("Profil klickad");
+            }}
             className={`flex items-center w-full gap-3 px-3 py-2 rounded-full hover:bg-white/10 transition-colors duration-150 ${
               isExpanded ? "justify-start" : "justify-center"
             }`}

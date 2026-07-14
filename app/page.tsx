@@ -66,7 +66,7 @@ export default function Home() {
       )}
 
       {/* Huvudinnehåll */}
-      <div className="flex-1 min-w-0 flex flex-col overflow-hidden">
+      <div className="flex-1 min-w-0 flex flex-col overflow-hidden transition-all duration-300 ease-in-out">
         <AnimatePresence mode="wait">
           {isLanding ? (
             <LandingView

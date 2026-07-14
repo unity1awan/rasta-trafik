@@ -45,8 +45,8 @@ export function LandingView({ onSend, isLoading, route }: Props) {
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.45, ease: "easeOut" }}
       >
-        <h1 className="text-2xl font-bold text-slate-900 tracking-tight">Rasta Trafik</h1>
-        <p className="text-sm text-slate-500 font-medium mt-0.5">Din AI-vägassistent</p>
+        <h1 className="text-2xl font-bold text-slate-900 dark:text-white tracking-tight">Rasta Trafik</h1>
+        <p className="text-sm text-slate-500 dark:text-zinc-300 font-medium mt-0.5">Din AI-vägassistent</p>
       </motion.div>
 
       {/* Sphere */}

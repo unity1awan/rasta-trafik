@@ -18,9 +18,17 @@ type View = "gate" | "app";
 export default function Home() {
   const { user, loading } = useUser();
   const [view, setView] = useState<View>("gate");
+  const wasLoggedIn = useRef(false);
 
   useEffect(() => {
-    if (!loading && user) setView("app");
+    if (!loading && user) {
+      wasLoggedIn.current = true;
+      setView("app");
+    } else if (!loading && !user && wasLoggedIn.current) {
+      // Användaren loggade ut — skicka tillbaka till gate
+      wasLoggedIn.current = false;
+      setView("gate");
+    }
   }, [loading, user]);
 
   const { location, requestLocation } = useLocation();

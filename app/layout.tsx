@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import { Geist } from "next/font/google";
+import { ThemeProvider } from "@/components/ui/ThemeProvider";
 const geist = Geist({subsets:['latin'],variable:'--font-sans'});
 
 const APP_URL = "https://rasta-trafik.vercel.app";
@@ -46,7 +47,9 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="sv" className={`font-sans ${geist.variable}`}>
-      <body className="antialiased">{children}</body>
+      <body className="antialiased">
+        <ThemeProvider>{children}</ThemeProvider>
+      </body>
     </html>
   );
 }

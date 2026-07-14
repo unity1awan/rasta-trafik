@@ -8,8 +8,11 @@ import {
   Clock,
   Settings,
   MessageSquare,
+  LogOut,
+  UserCircle,
 } from "lucide-react";
 import { useUser } from "@/hooks/useUser";
+import { createClient } from "@/utils/supabase/client";
 
 const HISTORY = [
   "Rastplatser nära E4 Jönköping",
@@ -18,7 +21,7 @@ const HISTORY = [
   "Parkering Stockholm norrut",
 ];
 
-/* ─── Tooltip-wrapper ─────────────────────────────────────────────────────── */
+/* ─── Tooltip ─────────────────────────────────────────────────────────────── */
 function Tip({ label, show }: { label: string; show: boolean }) {
   if (!show) return null;
   return (
@@ -28,7 +31,7 @@ function Tip({ label, show }: { label: string; show: boolean }) {
   );
 }
 
-/* ─── Generisk menyrad ────────────────────────────────────────────────────── */
+/* ─── Menyrad ─────────────────────────────────────────────────────────────── */
 function Item({
   icon,
   label,
@@ -44,7 +47,6 @@ function Item({
     <div className="relative group">
       <button
         onClick={onClick}
-        title={isExpanded ? undefined : label}
         className={`flex items-center w-full gap-3 px-3 py-2.5 rounded-full hover:bg-white/10 transition-colors duration-150 ${
           isExpanded ? "justify-start" : "justify-center"
         }`}
@@ -63,6 +65,72 @@ function Item({
   );
 }
 
+/* ─── Profilmeny ──────────────────────────────────────────────────────────── */
+function ProfileMenu({
+  email,
+  initial,
+  onClose,
+}: {
+  email: string;
+  initial: string;
+  onClose: () => void;
+}) {
+  const signOut = async () => {
+    await createClient().auth.signOut();
+  };
+
+  return (
+    <>
+      {/* Backdrop — klick utanför stänger menyn */}
+      <div className="fixed inset-0 z-40" onClick={onClose} />
+
+      <div className="absolute bottom-full left-0 mb-2 z-50 w-64 rounded-2xl bg-[#2a2b2e] border border-white/10 shadow-2xl overflow-hidden">
+        {/* Profil-header */}
+        <div className="flex items-center gap-3 px-4 py-4 border-b border-white/10">
+          <div className="w-10 h-10 rounded-full bg-[#4a4e6a] flex items-center justify-center shrink-0 text-base font-bold text-white">
+            {initial}
+          </div>
+          <div className="flex flex-col min-w-0">
+            <span className="text-sm font-semibold text-white leading-tight">Awan</span>
+            <span className="text-xs text-[#8e918f] truncate leading-tight">{email}</span>
+          </div>
+        </div>
+
+        {/* Menyalternativ */}
+        <div className="p-2">
+          <button
+            onClick={() => { onClose(); }}
+            className="flex items-center gap-3 w-full px-3 py-2.5 rounded-xl hover:bg-white/10 transition-colors text-left"
+          >
+            <UserCircle className="w-4 h-4 text-[#8e918f] shrink-0" />
+            <span className="text-sm text-[#c4c7c5]">Min profil</span>
+          </button>
+
+          <button
+            onClick={() => { onClose(); }}
+            className="flex items-center gap-3 w-full px-3 py-2.5 rounded-xl hover:bg-white/10 transition-colors text-left"
+          >
+            <Settings className="w-4 h-4 text-[#8e918f] shrink-0" />
+            <span className="text-sm text-[#c4c7c5]">Inställningar</span>
+          </button>
+
+          <div className="border-t border-white/10 my-1.5" />
+
+          <button
+            onClick={signOut}
+            className="flex items-center gap-3 w-full px-3 py-2.5 rounded-xl hover:bg-red-500/10 transition-colors text-left group"
+          >
+            <LogOut className="w-4 h-4 text-[#8e918f] shrink-0 group-hover:text-red-400 transition-colors" />
+            <span className="text-sm text-[#c4c7c5] group-hover:text-red-400 transition-colors">
+              Logga ut
+            </span>
+          </button>
+        </div>
+      </div>
+    </>
+  );
+}
+
 /* ─── Sidebar ─────────────────────────────────────────────────────────────── */
 type Props = {
   hasLocation: boolean;
@@ -71,18 +139,19 @@ type Props = {
 
 export function Sidebar({ hasLocation, onNewChat }: Props) {
   const [isExpanded, setIsExpanded] = useState(true);
+  const [profileOpen, setProfileOpen] = useState(false);
   const { user } = useUser();
 
   const initial = user?.email?.[0].toUpperCase() ?? "A";
+  const email = user?.email ?? "";
 
   return (
-    // Ingen overflow-hidden på aside — krävs för att tooltips ska synas utanför
     <aside
-      className={`flex flex-col h-screen bg-[#1e1f20] shrink-0 border-r border-white/5 transition-all duration-300 ease-in-out ${
+      className={`relative flex flex-col h-screen bg-[#1e1f20] shrink-0 border-r border-white/5 transition-all duration-300 ease-in-out ${
         isExpanded ? "w-72" : "w-[68px]"
       }`}
     >
-      {/* ── Toggle / Logga — klicka hela raden ──────────────────────────── */}
+      {/* ── Toggle / Logga ──────────────────────────────────────────────── */}
       <button
         onClick={() => setIsExpanded((v) => !v)}
         className={`flex items-center gap-3 w-full px-3 pt-4 pb-3 hover:bg-white/10 transition-colors duration-150 ${
@@ -151,13 +220,12 @@ export function Sidebar({ hasLocation, onNewChat }: Props) {
         <div className="relative group mt-1">
           <button
             onClick={(e) => {
-              e.preventDefault();
               e.stopPropagation();
-              console.log("Profil klickad");
+              setProfileOpen((v) => !v);
             }}
             className={`flex items-center w-full gap-3 px-3 py-2 rounded-full hover:bg-white/10 transition-colors duration-150 ${
               isExpanded ? "justify-start" : "justify-center"
-            }`}
+            } ${profileOpen ? "bg-white/10" : ""}`}
           >
             <div className="w-8 h-8 rounded-full bg-[#4a4e6a] flex items-center justify-center shrink-0 text-sm font-bold text-white">
               {initial}
@@ -175,7 +243,16 @@ export function Sidebar({ hasLocation, onNewChat }: Props) {
               </span>
             </div>
           </button>
-          <Tip label="Logga ut" show={!isExpanded} />
+          <Tip label="Profil" show={!isExpanded && !profileOpen} />
+
+          {/* Profilmeny */}
+          {profileOpen && (
+            <ProfileMenu
+              email={email}
+              initial={initial}
+              onClose={() => setProfileOpen(false)}
+            />
+          )}
         </div>
       </div>
     </aside>

@@ -22,7 +22,7 @@ export function ChatInput({ onSend, disabled, bare = false }: Props) {
 
   const formClass = bare
     ? "flex gap-2 w-full"
-    : "bg-white/80 backdrop-blur-sm border-t border-zinc-100 px-4 py-3 flex gap-2 shrink-0";
+    : "bg-white/80 dark:bg-zinc-900/80 backdrop-blur-sm border-t border-zinc-100 dark:border-zinc-800 px-4 py-3 flex gap-2 shrink-0";
 
   return (
     <form onSubmit={handleSubmit} className={formClass}>
@@ -36,7 +36,7 @@ export function ChatInput({ onSend, disabled, bare = false }: Props) {
         autoCorrect="off"
         autoCapitalize="off"
         spellCheck={false}
-        className="flex-1 rounded-full border border-zinc-200 bg-zinc-50 px-4 py-2.5 text-sm text-zinc-900 placeholder-zinc-400 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-400 focus:bg-white disabled:opacity-50 transition-all"
+        className="flex-1 rounded-full border border-zinc-200 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-800 px-4 py-2.5 text-sm text-zinc-900 dark:text-zinc-100 placeholder-zinc-400 dark:placeholder-zinc-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-400 focus:bg-white dark:focus:bg-zinc-700 disabled:opacity-50 transition-all"
       />
       <motion.button
         type="submit"

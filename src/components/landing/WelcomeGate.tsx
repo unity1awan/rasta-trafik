@@ -15,7 +15,7 @@ export function WelcomeGate({ onGuest }: Props) {
   return (
     <>
       <motion.div
-        className="flex flex-col h-screen bg-white items-center"
+        className="flex flex-col h-screen bg-white dark:bg-zinc-900 items-center"
         exit={{ opacity: 0, y: -20, transition: { duration: 0.25, ease: "easeIn" } }}
       >
         {/* Logo */}

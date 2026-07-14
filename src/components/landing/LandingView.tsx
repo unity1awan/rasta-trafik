@@ -35,7 +35,7 @@ type Props = {
 export function LandingView({ onSend, isLoading, route }: Props) {
   return (
     <motion.div
-      className="flex flex-col h-screen bg-white items-center"
+      className="flex flex-col h-screen bg-white dark:bg-zinc-900 items-center"
       exit={{ opacity: 0, y: -30, transition: { duration: 0.25, ease: "easeIn" } }}
     >
       {/* Header — text only, centrerad */}

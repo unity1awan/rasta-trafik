@@ -29,7 +29,7 @@ export function AppHeader({ hasLocation, onRequestLocation, onReset, routeFrom, 
   return (
     <>
       <motion.header
-        className="bg-white/80 backdrop-blur-sm border-b border-zinc-100 px-4 py-3 flex items-center gap-3 shrink-0 sticky top-0 z-10"
+        className="bg-white/80 dark:bg-zinc-900/80 backdrop-blur-sm border-b border-zinc-100 dark:border-zinc-800 px-4 py-3 flex items-center gap-3 shrink-0 sticky top-0 z-10"
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.35, ease: "easeOut" }}
@@ -39,7 +39,7 @@ export function AppHeader({ hasLocation, onRequestLocation, onReset, routeFrom, 
         </div>
 
         <div className="flex-1 min-w-0">
-          <h1 className="font-semibold text-zinc-900 text-sm leading-tight">Rasta Trafik</h1>
+          <h1 className="font-semibold text-zinc-900 dark:text-white text-sm leading-tight">Rasta Trafik</h1>
           {routeFrom && routeTo ? (
             <div className="flex items-center gap-1 mt-0.5 w-fit bg-slate-100 text-slate-600 text-xs px-2 py-0.5 rounded-full">
               <span className="truncate max-w-[80px]">{routeFrom}</span>
@@ -47,7 +47,7 @@ export function AppHeader({ hasLocation, onRequestLocation, onReset, routeFrom, 
               <span className="truncate max-w-[80px]">{routeTo}</span>
             </div>
           ) : (
-            <p className="text-xs text-zinc-400">AI-guide för rastplatser</p>
+            <p className="text-xs text-zinc-400 dark:text-zinc-500">AI-guide för rastplatser</p>
           )}
         </div>
 
@@ -57,7 +57,7 @@ export function AppHeader({ hasLocation, onRequestLocation, onReset, routeFrom, 
           className={`shrink-0 flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-medium transition-all ${
             hasLocation
               ? "bg-green-100 text-green-700 ring-1 ring-green-200"
-              : "bg-zinc-100 text-zinc-500 hover:bg-zinc-200"
+              : "bg-zinc-100 dark:bg-zinc-800 text-zinc-500 dark:text-zinc-400 hover:bg-zinc-200 dark:hover:bg-zinc-700"
           }`}
         >
           <Navigation2 className={`w-3 h-3 ${hasLocation ? "fill-green-600 text-green-700" : ""}`} />
@@ -68,7 +68,7 @@ export function AppHeader({ hasLocation, onRequestLocation, onReset, routeFrom, 
           onClick={onReset}
           whileTap={{ scale: 0.95 }}
           title="Ny konversation"
-          className="shrink-0 flex items-center justify-center w-8 h-8 rounded-full bg-zinc-100 text-zinc-500 hover:bg-zinc-200 transition-colors"
+          className="shrink-0 flex items-center justify-center w-8 h-8 rounded-full bg-zinc-100 dark:bg-zinc-800 text-zinc-500 dark:text-zinc-400 hover:bg-zinc-200 dark:hover:bg-zinc-700 transition-colors"
         >
           <RotateCcw className="w-3.5 h-3.5" />
         </motion.button>

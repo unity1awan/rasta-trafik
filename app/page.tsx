@@ -96,7 +96,7 @@ export default function Home() {
               }}
             />
           ) : (
-            <div key="chat" className="flex flex-col h-full bg-gradient-to-b from-zinc-50 to-zinc-100">
+            <div key="chat" className="flex flex-col h-full bg-gradient-to-b from-zinc-50 to-zinc-100 dark:from-zinc-900 dark:to-zinc-950">
               <AppHeader
                 hasLocation={!!location}
                 onRequestLocation={requestLocation}

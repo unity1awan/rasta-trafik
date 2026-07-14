@@ -10,7 +10,6 @@ import {
   MessageSquare,
 } from "lucide-react";
 import { useUser } from "@/hooks/useUser";
-import { createClient } from "@/utils/supabase/client";
 
 const HISTORY = [
   "Rastplatser nära E4 Jönköping",
@@ -73,10 +72,6 @@ type Props = {
 export function Sidebar({ hasLocation, onNewChat }: Props) {
   const [isExpanded, setIsExpanded] = useState(true);
   const { user } = useUser();
-
-  const signOut = async () => {
-    await createClient().auth.signOut();
-  };
 
   const initial = user?.email?.[0].toUpperCase() ?? "A";
 

@@ -38,7 +38,8 @@ export function AuthModal({ onClose, initialTab = "login" }: Props) {
     } else {
       const { error } = await supabase.auth.signUp({ email, password });
       if (error) {
-        setError("Kunde inte skapa konto. Kontrollera att lösenordet är minst 6 tecken.");
+        console.error("Supabase signUp error:", error);
+        setError(error.message);
       } else {
         setSuccess("Konto skapat! Kontrollera din e-post för att verifiera.");
       }

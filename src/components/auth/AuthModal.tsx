@@ -9,17 +9,18 @@ type Tab = "login" | "register";
 
 type Props = {
   onClose: () => void;
+  initialTab?: Tab;
 };
 
-export function AuthModal({ onClose }: Props) {
-  const [tab, setTab] = useState<Tab>("login");
+export function AuthModal({ onClose, initialTab = "login" }: Props) {
+  const [tab, setTab] = useState<Tab>(initialTab);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: { preventDefault: () => void }) => {
     e.preventDefault();
     setError(null);
     setSuccess(null);

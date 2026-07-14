@@ -1,16 +1,28 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useState, useEffect, useRef } from "react";
 import { AnimatePresence } from "framer-motion";
 import { useChat } from "@/hooks/useChat";
 import { useLocation } from "@/hooks/useLocation";
 import { useRoute } from "@/hooks/useRoute";
+import { useUser } from "@/hooks/useUser";
+import { WelcomeGate } from "@/components/landing/WelcomeGate";
 import { LandingView } from "@/components/landing/LandingView";
 import { AppHeader } from "@/components/chat/AppHeader";
 import { MessageList } from "@/components/chat/MessageList";
 import { ChatInput } from "@/components/chat/ChatInput";
 
+type View = "gate" | "app";
+
 export default function Home() {
+  const { user, loading } = useUser();
+  const [view, setView] = useState<View>("gate");
+
+  // Inloggad användare hoppar direkt förbi gate
+  useEffect(() => {
+    if (!loading && user) setView("app");
+  }, [loading, user]);
+
   const { location, requestLocation } = useLocation();
   const {
     fromText, setFromText,
@@ -34,9 +46,14 @@ export default function Home() {
 
   const isLanding = messages.length === 1;
 
+  // Kort blank under auth-laddning för att undvika glimt av gate för inloggade
+  if (loading) return null;
+
   return (
     <AnimatePresence mode="wait">
-      {isLanding ? (
+      {view === "gate" ? (
+        <WelcomeGate key="gate" onGuest={() => setView("app")} />
+      ) : isLanding ? (
         <LandingView
           key="landing"
           onSend={sendMessage}

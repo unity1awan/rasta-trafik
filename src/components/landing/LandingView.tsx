@@ -4,6 +4,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { MapPin } from "lucide-react";
 import { AiSphere } from "./AiSphere";
 import { ChatInput } from "@/components/chat/ChatInput";
+import type { VoiceState } from "@/hooks/useVoice";
 
 const SUGGESTIONS = [
   "Närmaste rastplats",
@@ -16,9 +17,12 @@ type Props = {
   isLoading: boolean;
   hasLocation: boolean;
   onRequestLocation: () => void;
+  voiceState: VoiceState;
+  onVoiceToggle: () => void;
+  isVoiceSupported: boolean;
 };
 
-export function LandingView({ onSend, isLoading, hasLocation, onRequestLocation }: Props) {
+export function LandingView({ onSend, isLoading, hasLocation, onRequestLocation, voiceState, onVoiceToggle, isVoiceSupported }: Props) {
   return (
     <motion.div
       className="flex flex-col h-full bg-white dark:bg-zinc-900 items-center"
@@ -46,7 +50,12 @@ export function LandingView({ onSend, isLoading, hasLocation, onRequestLocation 
         animate={{ opacity: 1, scale: 1 }}
         transition={{ duration: 0.55, delay: 0.1, ease: "easeOut" }}
       >
-        <AiSphere isLoading={isLoading} />
+        <AiSphere
+          isLoading={isLoading}
+          voiceState={voiceState}
+          onClick={onVoiceToggle}
+          isVoiceSupported={isVoiceSupported}
+        />
       </motion.div>
 
       {/* Chips + GPS + input */}

@@ -6,6 +6,7 @@ import { MapPin } from "lucide-react";
 import { useChat } from "@/hooks/useChat";
 import { useLocation } from "@/hooks/useLocation";
 import { useUser } from "@/hooks/useUser";
+import { useVoice } from "@/hooks/useVoice";
 import { WelcomeGate } from "@/components/landing/WelcomeGate";
 import { LandingView } from "@/components/landing/LandingView";
 import { Sidebar } from "@/components/layout/Sidebar";
@@ -37,6 +38,22 @@ export default function Home() {
   const [conversations, setConversations] = useState<Conversation[]>([]);
   const [activeConversationId, setActiveConversationId] = useState<string | null>(null);
   const hasAddedCurrentChat = useRef(false);
+
+  // Röst — onTranscript skickar direkt som prompt
+  const { voiceState, isSupported: isVoiceSupported, isVoiceActiveRef, toggle: toggleVoice, speak } =
+    useVoice((transcript) => handleSend(transcript));
+
+  // Läs upp AI-svar med TTS när streaming är klar och användaren använde röst
+  const prevIsLoadingRef = useRef(false);
+  useEffect(() => {
+    if (prevIsLoadingRef.current && !isLoading) {
+      const last = messages[messages.length - 1];
+      if (last?.role === "assistant" && !last.isError && isVoiceActiveRef.current) {
+        speak(last.content);
+      }
+    }
+    prevIsLoadingRef.current = isLoading;
+  }, [isLoading]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Begär GPS automatiskt när appen öppnas
   useEffect(() => {
@@ -109,6 +126,9 @@ export default function Home() {
               isLoading={isLoading}
               hasLocation={!!location}
               onRequestLocation={requestLocation}
+              voiceState={voiceState}
+              onVoiceToggle={toggleVoice}
+              isVoiceSupported={isVoiceSupported}
             />
           ) : (
             <div

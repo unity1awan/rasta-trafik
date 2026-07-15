@@ -46,7 +46,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="sv" className={`font-sans ${geist.variable}`}>
+    <html lang="sv" className={`font-sans ${geist.variable}`} suppressHydrationWarning>
       <body className="antialiased">
         <ThemeProvider>{children}</ThemeProvider>
       </body>

@@ -12,10 +12,10 @@ function MapsCard({ url }: { url: string }) {
       href={url}
       target="_blank"
       rel="noopener noreferrer"
-      className="flex items-center gap-3 mt-3 w-full rounded-2xl border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 px-4 py-3 hover:bg-zinc-50 dark:hover:bg-zinc-700 hover:border-zinc-300 hover:shadow-md transition-all shadow-sm group"
+      className="flex items-center gap-3 mt-3 w-full rounded-2xl border border-zinc-200 bg-white px-4 py-3 hover:bg-zinc-50 hover:border-zinc-300 hover:shadow-md transition-all shadow-sm group"
     >
       <GoogleMapsIcon className="w-5 h-5 shrink-0" />
-      <span className="flex-1 text-sm font-medium text-slate-800">Öppna i Google Maps</span>
+      <span className="flex-1 text-sm font-medium text-zinc-800">Öppna i Google Maps</span>
       <ArrowUpRight className="w-4 h-4 text-zinc-400 group-hover:text-zinc-600 transition-colors shrink-0" />
     </a>
   );
@@ -130,10 +130,10 @@ export function MessageBubble({ message, isLast, isLoading }: Props) {
   return (
     <div className={`flex ${isUser ? "justify-end" : "justify-start"}`}>
       <div
-        className={`max-w-[85%] rounded-2xl px-4 py-3 text-sm leading-relaxed ${
+        className={`max-w-[85%] rounded-2xl px-5 py-3.5 text-sm leading-relaxed shadow-sm ${
           isUser
-            ? "bg-blue-600 text-white rounded-br-sm shadow-sm"
-            : "bg-white dark:bg-zinc-800 border border-zinc-100 dark:border-zinc-700 text-slate-800 dark:text-zinc-100 rounded-bl-sm shadow-sm"
+            ? "bg-blue-600 text-white rounded-br-sm"
+            : "bg-white border border-zinc-100 text-zinc-900 rounded-bl-sm"
         }`}
       >
         {isUser ? (

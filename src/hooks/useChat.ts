@@ -81,5 +81,10 @@ export function useChat(location: Coordinates, route: RouteCoordinates | null = 
     setIsLoading(false);
   };
 
-  return { messages, isLoading, sendMessage, resetChat };
+  const loadConversation = (msgs: Message[]) => {
+    setMessages(msgs.length > 0 ? msgs : [WELCOME]);
+    setIsLoading(false);
+  };
+
+  return { messages, isLoading, sendMessage, resetChat, loadConversation };
 }

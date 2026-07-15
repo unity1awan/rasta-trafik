@@ -5,6 +5,7 @@ import { Route, Edit, Settings, MessageSquare } from "lucide-react";
 import { useUser } from "@/hooks/useUser";
 import { createClient } from "@/utils/supabase/client";
 import { SettingsModal } from "@/components/ui/SettingsModal";
+import type { Conversation } from "@/types/Conversation";
 
 /* ─── Tooltip ─────────────────────────────────────────────────────────────── */
 function Tip({ label, show }: { label: string; show: boolean }) {
@@ -54,10 +55,18 @@ function Item({
 type Props = {
   hasLocation: boolean;
   onNewChat: () => void;
-  conversations: string[];
+  conversations: Conversation[];
+  activeConversationId: string | null;
+  onSelectConversation: (id: string) => void;
 };
 
-export function Sidebar({ hasLocation, onNewChat, conversations }: Props) {
+export function Sidebar({
+  hasLocation,
+  onNewChat,
+  conversations,
+  activeConversationId,
+  onSelectConversation,
+}: Props) {
   const [isExpanded, setIsExpanded] = useState(true);
   const [settingsOpen, setSettingsOpen] = useState(false);
   const { user } = useUser();
@@ -113,17 +122,37 @@ export function Sidebar({ hasLocation, onNewChat, conversations }: Props) {
             </p>
           )}
           {isExpanded &&
-            conversations.map((label, i) => (
-              <button
-                key={i}
-                className="flex items-center gap-3 w-full px-3 py-2 rounded-xl hover:bg-gray-100 dark:hover:bg-white/10 transition-colors text-left group"
-              >
-                <MessageSquare className="w-4 h-4 text-gray-400 dark:text-[#8e918f] shrink-0 group-hover:text-gray-600 dark:group-hover:text-[#c4c7c5] transition-colors" />
-                <span className="text-sm text-gray-600 dark:text-[#c4c7c5] truncate group-hover:text-gray-900 dark:group-hover:text-white transition-colors">
-                  {label}
-                </span>
-              </button>
-            ))}
+            conversations.map((conv) => {
+              const isActive = conv.id === activeConversationId;
+              return (
+                <button
+                  key={conv.id}
+                  onClick={() => onSelectConversation(conv.id)}
+                  className={`flex items-center gap-3 w-full px-3 py-2 rounded-xl transition-all duration-200 text-left group ${
+                    isActive
+                      ? "bg-gray-100 dark:bg-white/10"
+                      : "hover:bg-gray-100 dark:hover:bg-white/10"
+                  }`}
+                >
+                  <MessageSquare
+                    className={`w-4 h-4 shrink-0 transition-colors ${
+                      isActive
+                        ? "text-gray-700 dark:text-[#c4c7c5]"
+                        : "text-gray-400 dark:text-[#8e918f] group-hover:text-gray-600 dark:group-hover:text-[#c4c7c5]"
+                    }`}
+                  />
+                  <span
+                    className={`text-sm truncate transition-colors ${
+                      isActive
+                        ? "text-gray-900 dark:text-white font-medium"
+                        : "text-gray-600 dark:text-[#c4c7c5] group-hover:text-gray-900 dark:group-hover:text-white"
+                    }`}
+                  >
+                    {conv.title}
+                  </span>
+                </button>
+              );
+            })}
         </div>
 
         {/* ── Botten: Inställningar + Profil ────────────────────────────── */}
@@ -135,7 +164,6 @@ export function Sidebar({ hasLocation, onNewChat, conversations }: Props) {
             onClick={() => setSettingsOpen(true)}
           />
 
-          {/* GPS-status — bara synlig när utfälld */}
           {isExpanded && (
             <div className="flex items-center gap-2 px-3 py-1.5">
               <span
@@ -149,7 +177,6 @@ export function Sidebar({ hasLocation, onNewChat, conversations }: Props) {
             </div>
           )}
 
-          {/* Avatar / Logga ut */}
           <div className="relative group">
             <button
               onClick={(e) => {
@@ -170,7 +197,7 @@ export function Sidebar({ hasLocation, onNewChat, conversations }: Props) {
                 }`}
               >
                 <span className="text-sm text-gray-800 dark:text-white font-medium whitespace-nowrap leading-tight group-hover:text-red-600 dark:group-hover:text-red-400 transition-colors">
-                  Awan
+                  {user?.email?.split("@")[0] ?? "Användare"}
                 </span>
                 <span className="text-xs text-gray-400 dark:text-[#8e918f] whitespace-nowrap leading-tight">
                   Logga ut

@@ -7,32 +7,27 @@ if (!API_KEY) {
   throw new Error("TRAFIKVERKET_API_KEY saknas i miljövariablerna.");
 }
 
-const IRRELEVANT_NAME_PATTERNS = [
-  "p-hus", "p-däck", "pendel", "pendelparkering", "busshållplats",
-  "bussterminal", "lastkaj", "servicedepå",
-];
-
-// Facilitetsnyckelord som indikerar toalett
-const TOILET_KEYWORDS = ["wc", "toalett", "toilet", "restroom", "sanitet"];
-const WATER_KEYWORDS = ["vatten", "water", "dricksvatten"];
-const RESTAURANT_KEYWORDS = ["restaurang", "mat", "café", "kiosk", "food", "matkiosk", "cafeteria"];
-const PLAYGROUND_KEYWORDS = ["lek", "lekplats", "playground", "barn"];
-const SHOWER_KEYWORDS = ["dusch", "shower"];
-const PICNIC_KEYWORDS = ["picknick", "rastbord", "bord", "picnic", "grillplats"];
-const ACCESSIBLE_KEYWORDS = ["handikapp", "rörelsehindrad", "tillgänglig", "accessible", "disabled"];
-
-interface RawFacility {
+interface RawEquipment {
   Type?: string;
-  Description?: string;
+  Accessibility?: string;
+}
+
+interface RawVehicleCharacteristics {
+  VehicleType?: string;
+  NumberOfSpaces?: number;
 }
 
 interface RawParkingArea {
+  Id?: string;
   Name?: string;
-  Description?: string;
-  TypeOfParkingArea?: string;
-  Operator?: string;
   Geometry?: { WGS84?: string };
-  Facility?: RawFacility | RawFacility[];
+  Equipment?: RawEquipment[];
+  UsageSenario?: string[];
+  OpenStatus?: string;
+  OperationStatus?: string;
+  TariffsAndPayment?: { FreeOfCharge?: boolean };
+  VehicleCharacteristics?: RawVehicleCharacteristics[];
+  Deleted?: boolean;
 }
 
 function buildQuery(apiKey: string): string {
@@ -40,12 +35,18 @@ function buildQuery(apiKey: string): string {
     <REQUEST>
       <LOGIN authenticationkey="${apiKey}" />
       <QUERY objecttype="Parking" namespace="road.infrastructure" schemaversion="1.4">
+        <FILTER>
+          <EQ name="Deleted" value="false" />
+        </FILTER>
+        <INCLUDE>Id</INCLUDE>
         <INCLUDE>Name</INCLUDE>
-        <INCLUDE>Description</INCLUDE>
-        <INCLUDE>TypeOfParkingArea</INCLUDE>
-        <INCLUDE>Operator</INCLUDE>
         <INCLUDE>Geometry.WGS84</INCLUDE>
-        <INCLUDE>Facility</INCLUDE>
+        <INCLUDE>Equipment</INCLUDE>
+        <INCLUDE>UsageSenario</INCLUDE>
+        <INCLUDE>OpenStatus</INCLUDE>
+        <INCLUDE>OperationStatus</INCLUDE>
+        <INCLUDE>TariffsAndPayment</INCLUDE>
+        <INCLUDE>VehicleCharacteristics</INCLUDE>
       </QUERY>
     </REQUEST>
   `;
@@ -57,74 +58,43 @@ function parseCoordinates(wgs84?: string): { lat: number; lng: number } {
   return { lat, lng };
 }
 
-function isRelevant(name: string, lat: number, lng: number): boolean {
-  if (!name || lat === 0 || lng === 0) return false;
-  const lower = name.toLowerCase();
-  return !IRRELEVANT_NAME_PATTERNS.some((pattern) => lower.includes(pattern));
-}
-
-function matchesKeywords(text: string, keywords: string[]): boolean {
-  const lower = text.toLowerCase();
-  return keywords.some((kw) => lower.includes(kw));
-}
-
-function parseFacilities(raw: RawFacility | RawFacility[] | undefined): {
-  hasToilet: boolean;
-  hasWater: boolean;
-  hasRestaurant: boolean;
-  hasPlayground: boolean;
-  hasShower: boolean;
-  hasPicnicTable: boolean;
-  isAccessible: boolean;
-  facilities: string[];
-} {
-  const result = {
-    hasToilet: false,
-    hasWater: false,
-    hasRestaurant: false,
-    hasPlayground: false,
-    hasShower: false,
-    hasPicnicTable: false,
-    isAccessible: false,
-    facilities: [] as string[],
-  };
-
-  if (!raw) return result;
-
-  const list = Array.isArray(raw) ? raw : [raw];
-
-  for (const f of list) {
-    const combined = `${f.Type ?? ""} ${f.Description ?? ""}`.trim();
-    if (!combined) continue;
-
-    result.facilities.push(combined);
-
-    if (matchesKeywords(combined, TOILET_KEYWORDS)) result.hasToilet = true;
-    if (matchesKeywords(combined, WATER_KEYWORDS)) result.hasWater = true;
-    if (matchesKeywords(combined, RESTAURANT_KEYWORDS)) result.hasRestaurant = true;
-    if (matchesKeywords(combined, PLAYGROUND_KEYWORDS)) result.hasPlayground = true;
-    if (matchesKeywords(combined, SHOWER_KEYWORDS)) result.hasShower = true;
-    if (matchesKeywords(combined, PICNIC_KEYWORDS)) result.hasPicnicTable = true;
-    if (matchesKeywords(combined, ACCESSIBLE_KEYWORDS)) result.isAccessible = true;
-  }
-
-  return result;
-}
-
 function toRestArea(raw: RawParkingArea) {
   const { lat, lng } = parseCoordinates(raw.Geometry?.WGS84);
-  const name = raw.Name ?? "";
-  const facilityData = parseFacilities(raw.Facility);
+  const equipment = raw.Equipment ?? [];
+  const scenarios = raw.UsageSenario ?? [];
+  const vehicles = raw.VehicleCharacteristics ?? [];
+
+  const hasEquipment = (type: string) => equipment.some((e) => e.Type === type);
+  const hasToilet = hasEquipment("toilet");
+  const isAccessible =
+    hasToilet &&
+    equipment.some(
+      (e) => e.Type === "toilet" && e.Accessibility === "handicappedAccessible"
+    );
+
+  const lorryEntry = vehicles.find((v) => v.VehicleType === "lorry");
+  const carEntry = vehicles.find((v) => v.VehicleType === "car");
 
   return {
-    id: `${name}_${lng}_${lat}`,
-    name,
-    description: raw.Description ?? raw.TypeOfParkingArea ?? "Rastplats",
+    id: raw.Id ?? `${raw.Name}_${lng}_${lat}`,
+    name: raw.Name ?? "Okänd rastplats",
     location: { lat, lng },
-    typeOfArea: raw.TypeOfParkingArea,
-    operator: raw.Operator,
-    ...facilityData,
+    hasToilet,
+    isAccessible,
+    hasPicnicTable: hasEquipment("picnicFacilities"),
+    hasPlayground: hasEquipment("playground"),
+    hasDumpingStation: hasEquipment("dumpingStation"),
+    hasRefuseBin: hasEquipment("refuseBin"),
+    isFreeOfCharge: raw.TariffsAndPayment?.FreeOfCharge ?? true,
+    isOpen: raw.OpenStatus === "open",
+    hasLorryParking: scenarios.includes("truckParking"),
+    lorrySpaces: lorryEntry?.NumberOfSpaces ?? 0,
+    carSpaces: carEntry?.NumberOfSpaces ?? 0,
   };
+}
+
+function isValid(area: ReturnType<typeof toRestArea>): boolean {
+  return area.location.lat !== 0 && area.location.lng !== 0 && !!area.name;
 }
 
 const fetchRestAreasImpl = async () => {
@@ -139,28 +109,21 @@ const fetchRestAreasImpl = async () => {
 
     const apiError = data.RESPONSE?.RESULT?.[0]?.ERROR;
     if (apiError) {
-      console.error("Trafikverket API-fel:", JSON.stringify(apiError));
+      console.error("[Trafikverket] API-fel:", JSON.stringify(apiError));
       return [];
     }
 
     const rawList: RawParkingArea[] = data.RESPONSE?.RESULT?.[0]?.Parking ?? [];
+    console.log(`[Trafikverket] Hämtade ${rawList.length} platser`);
 
-    // Logga ett råobjekt för felsökning i server-konsolen
-    if (rawList.length > 0) {
-      console.log("[Trafikverket] Exempelobjekt:", JSON.stringify(rawList[0], null, 2));
-      console.log("[Trafikverket] Totalt antal platser:", rawList.length);
-    }
-
-    return rawList
-      .map(toRestArea)
-      .filter((area) => isRelevant(area.name, area.location.lat, area.location.lng));
+    return rawList.map(toRestArea).filter(isValid);
   } catch (error) {
-    console.error("Fel vid API-anrop:", error);
+    console.error("[Trafikverket] Nätverksfel:", error);
     return [];
   }
 };
 
-// Cache-nyckel v3 — tvingar nytt anrop med utökade fält
-export const fetchRestAreas = unstable_cache(fetchRestAreasImpl, ["rastplatser-v3"], {
+// v4 — korrekta fältnamn baserade på faktisk API-respons
+export const fetchRestAreas = unstable_cache(fetchRestAreasImpl, ["rastplatser-v4"], {
   revalidate: 3600,
 });

@@ -51,17 +51,17 @@ function getSphereState(isLoading: boolean, voiceState: VoiceState): SphereState
 }
 
 const GRADIENTS: Record<SphereState, string> = {
-  idle: "radial-gradient(circle at 32% 28%, #93c5fd, #3b82f6 45%, #1d4ed8 75%, #1e3a8a)",
-  listening: "radial-gradient(circle at 32% 28%, #86efac, #22c55e 45%, #16a34a 75%, #14532d)",
-  speaking: "radial-gradient(circle at 32% 28%, #d8b4fe, #a855f7 45%, #7c3aed 75%, #4c1d95)",
-  loading: "radial-gradient(circle at 38% 32%, #312e81, #0f172a 55%, #020617 85%)",
+  idle:      "radial-gradient(circle at 32% 28%, #93c5fd, #3b82f6 45%, #1d4ed8 75%, #1e3a8a)",
+  listening: "radial-gradient(circle at 32% 28%, #fca5a5, #ef4444 45%, #dc2626 75%, #7f1d1d)",
+  speaking:  "radial-gradient(circle at 32% 28%, #86efac, #22c55e 45%, #16a34a 75%, #14532d)",
+  loading:   "radial-gradient(circle at 38% 32%, #312e81, #0f172a 55%, #020617 85%)",
 };
 
 const GLOW_COLORS: Record<SphereState, [string, string]> = {
-  idle: ["rgba(59,130,246,0.35)", "rgba(29,78,216,0.15)"],
-  listening: ["rgba(34,197,94,0.45)", "rgba(22,163,74,0.2)"],
-  speaking: ["rgba(168,85,247,0.45)", "rgba(124,58,237,0.2)"],
-  loading: ["rgba(99,102,241,0.5)", "rgba(99,102,241,0.1)"],
+  idle:      ["rgba(59,130,246,0.35)",  "rgba(29,78,216,0.15)"],
+  listening: ["rgba(239,68,68,0.5)",    "rgba(220,38,38,0.2)"],
+  speaking:  ["rgba(34,197,94,0.45)",   "rgba(22,163,74,0.2)"],
+  loading:   ["rgba(99,102,241,0.5)",   "rgba(99,102,241,0.1)"],
 };
 
 export function AiSphere({
@@ -81,7 +81,7 @@ export function AiSphere({
   const rotateDuration = state === "loading" ? 5 : state === "speaking" ? 4 : 20;
   const [glow1, glow2] = GLOW_COLORS[state];
 
-  const isClickable = isVoiceSupported && !isLoading && voiceState !== "speaking";
+  const isClickable = isVoiceSupported && !isLoading;
 
   return (
     <div className="relative flex flex-col items-center gap-4">
@@ -91,14 +91,14 @@ export function AiSphere({
         role={isClickable ? "button" : undefined}
         aria-label={isClickable ? "Aktivera röstläge" : undefined}
       >
-        {/* Concentric ripple — bara i listening */}
+        {/* Concentric ripple — röd vid lyssning */}
         <AnimatePresence>
           {state === "listening" && (
             <>
               {[0, 0.5, 1].map((delay) => (
                 <motion.div
                   key={delay}
-                  className="absolute rounded-full border border-green-400/30"
+                  className="absolute rounded-full border border-red-400/30"
                   initial={{ scale: 0.8, opacity: 0.7 }}
                   animate={{ scale: 2.2, opacity: 0 }}
                   exit={{ opacity: 0 }}
@@ -110,14 +110,14 @@ export function AiSphere({
           )}
         </AnimatePresence>
 
-        {/* Speaking ripple — lila */}
+        {/* Speaking ripple — grön */}
         <AnimatePresence>
           {state === "speaking" && (
             <>
               {[0, 0.7].map((delay) => (
                 <motion.div
                   key={delay}
-                  className="absolute rounded-full border border-purple-400/25"
+                  className="absolute rounded-full border border-green-400/25"
                   initial={{ scale: 0.8, opacity: 0.6 }}
                   animate={{ scale: 1.9, opacity: 0 }}
                   exit={{ opacity: 0 }}
@@ -187,9 +187,9 @@ export function AiSphere({
               style={{
                 background:
                   state === "listening"
-                    ? "radial-gradient(circle at 50% 50%, rgba(134,239,172,0.4) 0%, transparent 60%)"
+                    ? "radial-gradient(circle at 50% 50%, rgba(252,165,165,0.45) 0%, transparent 60%)"
                     : state === "speaking"
-                    ? "radial-gradient(circle at 50% 50%, rgba(216,180,254,0.4) 0%, transparent 60%)"
+                    ? "radial-gradient(circle at 50% 50%, rgba(134,239,172,0.4) 0%, transparent 60%)"
                     : "radial-gradient(circle at 50% 50%, rgba(129,140,248,0.35) 0%, transparent 60%)",
               }}
               animate={{
@@ -246,9 +246,9 @@ export function AiSphere({
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="text-xs text-green-500 dark:text-green-400 font-medium select-none pointer-events-none"
+            className="text-xs text-red-500 dark:text-red-400 font-medium select-none pointer-events-none"
           >
-            Lyssnar...
+            Lyssnar... (klicka för att avbryta)
           </motion.p>
         )}
         {state === "speaking" && (
@@ -257,9 +257,9 @@ export function AiSphere({
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="text-xs text-purple-500 dark:text-purple-400 font-medium select-none pointer-events-none"
+            className="text-xs text-green-600 dark:text-green-400 font-medium select-none pointer-events-none"
           >
-            Svarar...
+            Svarar... (klicka för att avbryta)
           </motion.p>
         )}
       </AnimatePresence>

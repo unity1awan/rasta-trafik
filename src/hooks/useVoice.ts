@@ -73,10 +73,17 @@ export function useVoice(onTranscript: (text: string) => void) {
     speechSynthesis.speak(utterance);
   }, []);
 
+  const stopSpeaking = useCallback(() => {
+    speechSynthesis.cancel();
+    setVoiceState("idle");
+    isVoiceActiveRef.current = false;
+  }, [isVoiceActiveRef]);
+
   const toggle = useCallback(() => {
     if (voiceState === "listening") stopListening();
+    else if (voiceState === "speaking") stopSpeaking();
     else startListening();
-  }, [voiceState, startListening, stopListening]);
+  }, [voiceState, startListening, stopListening, stopSpeaking]);
 
   return { voiceState, isSupported, isVoiceActiveRef, toggle, speak };
 }

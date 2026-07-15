@@ -69,7 +69,6 @@ export function LandingView({ onSend, isLoading, hasLocation, onRequestLocation 
               whileTap={{ scale: 0.97 }}
               className="flex items-center gap-2 rounded-full border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-800/80 px-4 py-2 text-sm font-medium text-slate-700 dark:text-zinc-200 shadow-sm hover:border-zinc-300 dark:hover:border-zinc-600 hover:shadow-md hover:-translate-y-0.5 disabled:opacity-40 disabled:cursor-not-allowed transition-all duration-300"
             >
-              <span>{s.emoji}</span>
               <span>{s.label}</span>
             </motion.button>
           ))}
@@ -86,7 +85,7 @@ export function LandingView({ onSend, isLoading, hasLocation, onRequestLocation 
               className="flex justify-center"
             >
               <button
-                onClick={onRequestLocation}
+                onClick={() => onRequestLocation()}
                 className="flex items-center gap-2.5 px-5 py-2 rounded-full bg-blue-50 dark:bg-blue-950/40 border border-blue-200 dark:border-blue-800 text-blue-700 dark:text-blue-300 text-xs font-medium hover:bg-blue-100 dark:hover:bg-blue-900/40 hover:shadow-md hover:-translate-y-0.5 transition-all duration-300"
               >
                 <span className="relative flex h-2 w-2">

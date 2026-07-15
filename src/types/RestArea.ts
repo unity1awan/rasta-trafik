@@ -9,4 +9,11 @@ export interface RestArea {
   hasToilet: boolean;
   hasWater: boolean;
   isAccessible: boolean;
+  hasRestaurant: boolean;
+  hasPlayground: boolean;
+  hasShower: boolean;
+  hasPicnicTable: boolean;
+  facilities: string[];
+  typeOfArea?: string;
+  operator?: string;
 }

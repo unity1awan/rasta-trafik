@@ -20,19 +20,37 @@ function buildLocationNote(lat?: number, lng?: number): string {
 
 function formatArea(area: RestArea): string {
   const mapsLink = `https://www.google.com/maps?q=${area.location.lat},${area.location.lng}`;
-  const facilities = [
-    area.hasToilet && "toalett",
-    area.hasWater && "vatten",
-    area.isAccessible && "tillgänglighetsanpassad",
-  ]
-    .filter(Boolean)
-    .join(", ");
 
-  return [
+  const knownFacilities = [
+    area.hasToilet && "toalett",
+    area.hasWater && "dricksvatten",
+    area.hasRestaurant && "restaurang/mat",
+    area.hasShower && "dusch",
+    area.hasPlayground && "lekplats",
+    area.hasPicnicTable && "picknickbord/grillplats",
+    area.isAccessible && "tillgänglighetsanpassad",
+  ].filter(Boolean);
+
+  // Inkludera rådata från API:t om det finns ytterligare facilitetsinformation
+  const rawFacilities = area.facilities.filter(
+    (f) => !knownFacilities.some((kf) => f.toLowerCase().includes((kf as string).split("/")[0]))
+  );
+
+  const allFacilities = [
+    ...knownFacilities,
+    ...rawFacilities.map((f) => `[${f}]`),
+  ];
+
+  const lines = [
     `- ${area.name}`,
+    `  Typ: ${area.typeOfArea ?? area.description}`,
     `  Google Maps: ${mapsLink}`,
-    `  Faciliteter: ${facilities || "inga kända"}`,
-  ].join("\n");
+    `  Faciliteter: ${allFacilities.length > 0 ? allFacilities.join(", ") : "inga kända"}`,
+  ];
+
+  if (area.operator) lines.push(`  Operatör: ${area.operator}`);
+
+  return lines.join("\n");
 }
 
 function buildAreasText(areas: RestArea[]): string {

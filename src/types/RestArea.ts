@@ -5,15 +5,4 @@ export interface RestArea {
     lat: number;
     lng: number;
   };
-  hasToilet: boolean;
-  isAccessible: boolean;
-  hasPicnicTable: boolean;
-  hasPlayground: boolean;
-  hasDumpingStation: boolean;
-  hasRefuseBin: boolean;
-  isFreeOfCharge: boolean;
-  isOpen: boolean;
-  hasLorryParking: boolean;
-  lorrySpaces: number;
-  carSpaces: number;
 }

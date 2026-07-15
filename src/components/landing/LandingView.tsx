@@ -6,9 +6,9 @@ import { AiSphere } from "./AiSphere";
 import { ChatInput } from "@/components/chat/ChatInput";
 
 const SUGGESTIONS = [
-  { emoji: "📍", label: "Hitta närmaste rastplats" },
-  { emoji: "🛣️", label: "Rastplatser längs min rutt" },
-  { emoji: "☕", label: "Rastplats med toalett/mat" },
+  "Närmaste rastplats",
+  "Rastplatser längs E4",
+  "Rastplatser i Norrland",
 ];
 
 type Props = {
@@ -60,16 +60,16 @@ export function LandingView({ onSend, isLoading, hasLocation, onRequestLocation 
         <div className="flex flex-wrap gap-2.5 justify-center">
           {SUGGESTIONS.map((s, i) => (
             <motion.button
-              key={s.label}
-              onClick={() => onSend(s.label)}
+              key={s}
+              onClick={() => onSend(s)}
               disabled={isLoading}
               initial={{ opacity: 0, y: 8 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.35, delay: 0.25 + i * 0.06, ease: "easeOut" }}
               whileTap={{ scale: 0.97 }}
-              className="flex items-center gap-2 rounded-full border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-800/80 px-4 py-2 text-sm font-medium text-slate-700 dark:text-zinc-200 shadow-sm hover:border-zinc-300 dark:hover:border-zinc-600 hover:shadow-md hover:-translate-y-0.5 disabled:opacity-40 disabled:cursor-not-allowed transition-all duration-300"
+              className="rounded-full border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-800/80 px-4 py-2 text-sm font-medium text-slate-700 dark:text-zinc-200 shadow-sm hover:border-zinc-300 dark:hover:border-zinc-600 hover:shadow-md hover:-translate-y-0.5 disabled:opacity-40 disabled:cursor-not-allowed transition-all duration-300"
             >
-              <span>{s.label}</span>
+              {s}
             </motion.button>
           ))}
         </div>

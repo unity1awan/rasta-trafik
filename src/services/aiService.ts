@@ -20,28 +20,7 @@ function buildLocationNote(lat?: number, lng?: number): string {
 
 function formatArea(area: RestArea): string {
   const mapsLink = `https://www.google.com/maps?q=${area.location.lat},${area.location.lng}`;
-
-  const facilities = [
-    area.hasToilet && (area.isAccessible ? "toalett (handikappanpassad)" : "toalett"),
-    area.hasPicnicTable && "picknickbord",
-    area.hasPlayground && "lekplats",
-    area.hasDumpingStation && "tömningsstation (husbil)",
-    area.hasRefuseBin && "sopkorg",
-    area.hasLorryParking && `lastbilsparkering (${area.lorrySpaces} platser)`,
-  ].filter(Boolean).join(", ");
-
-  const meta = [
-    area.isFreeOfCharge ? "gratis" : "avgift",
-    area.isOpen ? "öppen" : "stängd",
-    area.carSpaces > 0 ? `${area.carSpaces} bilplatser` : "",
-  ].filter(Boolean).join(", ");
-
-  return [
-    `- ${area.name}`,
-    `  Google Maps: ${mapsLink}`,
-    `  Faciliteter: ${facilities || "inga registrerade"}`,
-    `  Status: ${meta}`,
-  ].join("\n");
+  return `- ${area.name}\n  Google Maps: ${mapsLink}`;
 }
 
 function buildAreasText(areas: RestArea[]): string {

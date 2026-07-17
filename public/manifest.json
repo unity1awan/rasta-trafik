@@ -4,8 +4,11 @@
   "description": "AI-guide för rastplatser längs svenska vägar",
   "start_url": "/",
   "display": "standalone",
+  "orientation": "portrait",
   "background_color": "#ffffff",
   "theme_color": "#2563eb",
+  "categories": ["navigation", "travel"],
+  "lang": "sv",
   "icons": [
     {
       "src": "/icon.svg",

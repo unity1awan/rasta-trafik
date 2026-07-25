@@ -29,10 +29,11 @@ export async function fetchRoutePolyline(
   }
 }
 
-// Extraherar "från X till Y" ur ett naturligt meddelande
+// Extraherar rutt ur naturliga fraser som:
+// "borlänge till stockholm", "från Göteborg till Malmö", "åker från Sundsvall till Umeå"
 export function extractRoute(message: string): { from: string; to: string } | null {
   const match = message.match(
-    /från\s+([A-Za-zÅÄÖåäö\s\-]+?)\s+till\s+([A-Za-zÅÄÖåäö\s\-]+?)(?=[.,!?\n]|$)/i
+    /(?:(?:från|ifrån)\s+)?([A-Za-zÅÄÖåäö\-]+)\s+till\s+([A-Za-zÅÄÖåäö\-]+)/i
   );
   if (!match) return null;
   return { from: match[1].trim(), to: match[2].trim() };

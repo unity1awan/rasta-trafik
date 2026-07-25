@@ -25,8 +25,8 @@ export function WelcomeGate({ onGuest }: Props) {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.45, ease: "easeOut" }}
         >
-          <h1 className="text-2xl font-bold text-slate-900 tracking-tight">Rasta Trafik</h1>
-          <p className="text-sm text-slate-500 font-medium mt-0.5">Din AI-vägassistent</p>
+          <h1 className="text-2xl font-bold text-slate-900 dark:text-white tracking-tight">Rasta Trafik</h1>
+          <p className="text-sm text-slate-500 dark:text-zinc-400 font-medium mt-0.5">Din AI-vägassistent</p>
         </motion.div>
 
         {/* Sphere */}
@@ -57,14 +57,14 @@ export function WelcomeGate({ onGuest }: Props) {
           <motion.button
             whileTap={{ scale: 0.97 }}
             onClick={() => setAuthTab("register")}
-            className="w-full h-12 rounded-full border border-blue-200 text-blue-600 text-sm font-semibold hover:bg-blue-50 transition-colors"
+            className="w-full h-12 rounded-full border border-blue-200 dark:border-blue-700 text-blue-600 dark:text-blue-400 text-sm font-semibold hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-colors"
           >
             Registrera dig
           </motion.button>
 
           <button
             onClick={onGuest}
-            className="w-full h-10 text-sm text-zinc-400 hover:text-zinc-600 transition-colors"
+            className="w-full h-10 text-sm text-zinc-400 dark:text-zinc-500 hover:text-zinc-600 dark:hover:text-zinc-300 transition-colors"
           >
             Fortsätt som gäst
           </button>

@@ -3,7 +3,6 @@
 import { useState } from "react";
 import { Route, Edit, Settings, MessageSquare } from "lucide-react";
 import { useUser } from "@/hooks/useUser";
-import { createClient } from "@/utils/supabase/client";
 import { SettingsModal } from "@/components/ui/SettingsModal";
 import type { Conversation } from "@/types/Conversation";
 
@@ -73,8 +72,8 @@ export function Sidebar({
 
   const initial = user?.email?.[0].toUpperCase() ?? "A";
 
-  const signOut = async () => {
-    await createClient().auth.signOut();
+  const signOut = () => {
+    // TODO: Firebase Auth signOut
   };
 
   return (

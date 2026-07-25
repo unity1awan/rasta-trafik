@@ -55,7 +55,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="sv" className={`font-sans ${geist.variable}`} suppressHydrationWarning>
-      <body className="antialiased">
+      <body className="antialiased" suppressHydrationWarning>
         <ServiceWorkerRegistration />
         <ThemeProvider>{children}</ThemeProvider>
       </body>

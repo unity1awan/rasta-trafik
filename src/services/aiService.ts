@@ -24,16 +24,25 @@ function formatArea(area: RestArea): string {
 }
 
 function buildAreasText(areas: RestArea[]): string {
-  if (areas.length === 0) return "Inga rastplatser hittades i databasen för tillfället.";
+  if (areas.length === 0) return "Inga rastplatser hittades längs den angivna rutten.";
   return areas.map(formatArea).join("\n\n");
 }
 
-function buildSystemPrompt(areas: RestArea[], lat?: number, lng?: number): string {
+function buildSystemPrompt(
+  areas: RestArea[],
+  lat?: number,
+  lng?: number,
+  route?: { from: string; to: string } | null
+): string {
+  const routeNote = route
+    ? `Användaren reser från ${route.from} till ${route.to}. Rastplatserna nedan är förfiltrerade längs den faktiska vägrutten (3 km tunnel runt vägbanan).`
+    : buildLocationNote(lat, lng);
+
   return `Du är Rasta, en AI-assistent som hjälper bilister att hitta rastplatser längs sin resväg i Sverige.
 
-${buildLocationNote(lat, lng)}
+${routeNote}
 
-Tillgängliga rastplatser:
+Tillgängliga rastplatser längs rutten:
 ${buildAreasText(areas)}
 
 ${ASSISTANT_RULES}`;
@@ -43,9 +52,10 @@ export function streamChatResponse(
   messages: Message[],
   restAreas: RestArea[],
   userLat?: number,
-  userLng?: number
+  userLng?: number,
+  route?: { from: string; to: string } | null
 ): ReadableStream<Uint8Array> {
-  const systemPrompt = buildSystemPrompt(restAreas, userLat, userLng);
+  const systemPrompt = buildSystemPrompt(restAreas, userLat, userLng, route);
 
   return new ReadableStream<Uint8Array>({
     async start(controller) {

@@ -12,6 +12,7 @@
     "@anthropic-ai/sdk": "^0.106.0",
     "@supabase/ssr": "^0.12.1",
     "@supabase/supabase-js": "^2.110.5",
+    "@turf/turf": "^7.3.5",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "firebase": "^12.16.0",

@@ -3,7 +3,11 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { X, Loader2, Mail, Lock } from "lucide-react";
-import { createClient } from "@/utils/supabase/client";
+import {
+  signInWithEmailAndPassword,
+  createUserWithEmailAndPassword,
+} from "firebase/auth";
+import { auth } from "@/utils/firebase/client";
 
 type Tab = "login" | "register";
 
@@ -26,22 +30,25 @@ export function AuthModal({ onClose, initialTab = "login" }: Props) {
     setSuccess(null);
     setLoading(true);
 
-    const supabase = createClient();
-
-    if (tab === "login") {
-      const { error } = await supabase.auth.signInWithPassword({ email, password });
-      if (error) {
-        setError("Fel e-post eller lösenord.");
+    try {
+      if (tab === "login") {
+        await signInWithEmailAndPassword(auth, email, password);
+        onClose();
       } else {
+        await createUserWithEmailAndPassword(auth, email, password);
+        setSuccess("Konto skapat! Du är nu inloggad.");
         onClose();
       }
-    } else {
-      const { error } = await supabase.auth.signUp({ email, password });
-      if (error) {
-        console.error("Supabase signUp error:", error);
-        setError(error.message);
+    } catch (err: unknown) {
+      const code = (err as { code?: string }).code ?? "";
+      if (code === "auth/user-not-found" || code === "auth/wrong-password" || code === "auth/invalid-credential") {
+        setError("Fel e-post eller lösenord.");
+      } else if (code === "auth/email-already-in-use") {
+        setError("E-postadressen används redan.");
+      } else if (code === "auth/weak-password") {
+        setError("Lösenordet måste vara minst 6 tecken.");
       } else {
-        setSuccess("Konto skapat! Kontrollera din e-post för att verifiera.");
+        setError("Något gick fel. Försök igen.");
       }
     }
 

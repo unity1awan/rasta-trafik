@@ -1,9 +1,20 @@
 "use client";
 
-import type { User } from "@supabase/supabase-js";
+import { useState, useEffect } from "react";
+import { onAuthStateChanged, type User } from "firebase/auth";
+import { auth } from "@/utils/firebase/client";
 
-// Auth är tillfälligt inaktiverat. Returnerar alltid gäst-läge.
-// TODO: ersätt med Firebase Auth
 export function useUser() {
-  return { user: null as User | null, loading: false };
+  const [user, setUser] = useState<User | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (firebaseUser) => {
+      setUser(firebaseUser);
+      setLoading(false);
+    });
+    return unsubscribe;
+  }, []);
+
+  return { user, loading };
 }

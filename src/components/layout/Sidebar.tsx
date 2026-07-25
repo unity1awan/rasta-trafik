@@ -3,6 +3,8 @@
 import { useState } from "react";
 import { Route, Edit, Settings, MessageSquare } from "lucide-react";
 import { useUser } from "@/hooks/useUser";
+import { signOut } from "firebase/auth";
+import { auth } from "@/utils/firebase/client";
 import { SettingsModal } from "@/components/ui/SettingsModal";
 import type { Conversation } from "@/types/Conversation";
 
@@ -72,9 +74,7 @@ export function Sidebar({
 
   const initial = user?.email?.[0].toUpperCase() ?? "A";
 
-  const signOut = () => {
-    // TODO: Firebase Auth signOut
-  };
+  const handleSignOut = () => signOut(auth);
 
   return (
     <>
@@ -180,7 +180,7 @@ export function Sidebar({
             <button
               onClick={(e) => {
                 e.stopPropagation();
-                signOut();
+                handleSignOut();
               }}
               title="Logga ut"
               className={`flex items-center w-full gap-3 px-3 py-2.5 rounded-xl hover:bg-red-50 dark:hover:bg-red-500/10 transition-colors duration-150 group ${

@@ -1,65 +1,100 @@
-import Image from "next/image";
+"use client";
+
+import { useState, useEffect, useRef } from "react";
+import { AnimatePresence } from "framer-motion";
+import { useChat } from "@/hooks/useChat";
+import { useLocation } from "@/hooks/useLocation";
+import { useUser } from "@/hooks/useUser";
+import { useVoice } from "@/hooks/useVoice";
+import { useConversations } from "@/hooks/useConversations";
+import { WelcomeGate } from "@/components/landing/WelcomeGate";
+import { LandingView } from "@/components/landing/LandingView";
+import { Sidebar } from "@/components/layout/Sidebar";
+import { MessageList } from "@/components/chat/MessageList";
+import { ChatInput } from "@/components/chat/ChatInput";
+import { GpsBanner } from "@/components/chat/GpsBanner";
+
+type View = "gate" | "app";
 
 export default function Home() {
+  const { user, loading } = useUser();
+  const [view, setView] = useState<View>("gate");
+  const wasLoggedIn = useRef(false);
+
+  useEffect(() => {
+    if (!loading && user) { wasLoggedIn.current = true; setView("app"); }
+    else if (!loading && !user && wasLoggedIn.current) { wasLoggedIn.current = false; setView("gate"); }
+  }, [loading, user]);
+
+  const { location, requestLocation } = useLocation();
+  const { messages, isLoading, sendMessage, resetChat, loadConversation } = useChat(location);
+  const { conversations, activeId, startNewConversation, syncMessages, selectConversation, resetConversation, isFirstMessage } = useConversations();
+  const { voiceState, isSupported: isVoiceSupported, toggle: toggleVoice, speakIfVoiceActive } = useVoice((transcript) => handleSend(transcript));
+
+  useEffect(() => { if (view === "app") requestLocation(); }, [view]); // eslint-disable-line react-hooks/exhaustive-deps
+  useEffect(() => { syncMessages(messages); }, [messages]); // eslint-disable-line react-hooks/exhaustive-deps
+  useEffect(() => { if (!isLoading) speakIfVoiceActive(messages[messages.length - 1]?.content ?? ""); }, [isLoading]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  const handleSend = (message: string) => {
+    if (isFirstMessage()) startNewConversation(message);
+    sendMessage(message);
+  };
+
+  const handleNewChat = () => { resetChat(); resetConversation(); };
+
+  const handleSelectConversation = (id: string) => {
+    const msgs = selectConversation(id);
+    if (msgs) loadConversation(msgs);
+  };
+
+  if (loading) return null;
+
+  if (view === "gate") {
+    return (
+      <AnimatePresence mode="wait">
+        <WelcomeGate key="gate" onGuest={() => setView("app")} />
+      </AnimatePresence>
+    );
+  }
+
+  const isLanding = messages.length === 1;
+
   return (
-    <div className="flex min-h-screen items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex min-h-screen w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
+    <div className="flex h-screen overflow-hidden">
+      {user && (
+        <Sidebar
+          hasLocation={!!location}
+          onNewChat={handleNewChat}
+          conversations={conversations}
+          activeConversationId={activeId}
+          onSelectConversation={handleSelectConversation}
         />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
-        </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
+      )}
+
+      <div className="flex-1 min-w-0 flex flex-col overflow-hidden transition-all duration-300 ease-in-out">
+        <AnimatePresence mode="wait">
+          {isLanding ? (
+            <LandingView
+              key="landing"
+              onSend={handleSend}
+              isLoading={isLoading}
+              hasLocation={!!location}
+              onRequestLocation={requestLocation}
+              voiceState={voiceState}
+              onVoiceToggle={toggleVoice}
+              isVoiceSupported={isVoiceSupported}
             />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
-        </div>
-      </main>
+          ) : (
+            <div key="chat" className="flex flex-col h-full bg-white dark:bg-zinc-900">
+              <MessageList messages={messages} isLoading={isLoading} />
+              <AnimatePresence>
+                {!location && <GpsBanner onActivate={requestLocation} />}
+              </AnimatePresence>
+              <ChatInput onSend={handleSend} disabled={isLoading} />
+            </div>
+          )}
+        </AnimatePresence>
+      </div>
     </div>
   );
 }
